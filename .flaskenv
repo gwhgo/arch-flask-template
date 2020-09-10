@@ -1,2 +1,2 @@
-FLASK_APP="template.py"
+FLASK_APP="blog.py"
 
