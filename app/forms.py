@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 # The Email() validator from WTFormsj requries an external dependency to be installed
-from wtforms.validators import DataRequired, EqualTo, Email, ValidationError
+from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length
 from app.models import User
 
 
@@ -32,4 +32,8 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a differnt email address')
 
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
 

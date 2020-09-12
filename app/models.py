@@ -4,6 +4,7 @@ from app import db, login
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from hashlib import md5
 
 #Flask-Login
 #Expects certain properties and methods to be implemented in it. 
@@ -12,8 +13,10 @@ from flask_login import UserMixin
 # - is_active: a property that is True if the user's account is active or False otherwise
 # - is anonymouse : a property that is False foir regular users, and True for a special anonymouse user
 # - get_id(): a method that returns a unique identifier for the user as a string
-#Flask-Login provides a mixin class called UserMixin that includes generic implementations that are appropriate
+#Flask-Login provides a mixin class called `UserMixin`` that includes generic implementations that are appropriate
 # for most user model classes. 
+# Mixin : In object-oriented programming languages, a mixin(or mix-in) is a class that contains methods
+# for use by other classes without having to be the parent of those of those other classes.
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -21,6 +24,9 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     # 1 - Many : Please define a relationship in 1 side, and define backref
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    #more interesting profiles
+    about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime,default=datetime.utcnow)
     
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -30,6 +36,11 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def  avatar(self,size):
+        gravatar_url = 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return gravatar_url.format(digest,size)
 
 #Flask-Login keeps track of the logged in user by storing its unique identifier in Flask's user session,
 #a storage space assigned to each user who connects to the application. Each time the logged-in user
